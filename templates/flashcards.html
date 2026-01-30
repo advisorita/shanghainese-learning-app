@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}Flashcards - Shanghainese Learning{% endblock %}
+
+{% block content %}
+<div class="text-center mb-4">
+    <h1 class="display-4">🎴 Flashcard Mode</h1>
+    <p class="lead">Interactive learning with audio pronunciation</p>
+</div>
+
+<!-- Category Selection -->
+<div id="categorySelection" class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Select a Category</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% for category in categories %}
+                    <button class="btn btn-outline-primary btn-lg" onclick="startFlashcards('{{ category }}')">
+                        {{ category.replace('_', ' ').title() }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Flashcard Display -->
+<div id="flashcardDisplay" class="d-none">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Progress Bar -->
+            <div class="mb-3">
+                <div class="progress" style="height: 30px;">
+                    <div id="progressBar" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                </div>
+                <div class="text-center mt-2">
+                    <span id="progressText" class="fw-bold">Card 1 of 10</span>
+                </div>
+            </div>
+
+            <!-- Flashcard -->
+            <div class="card shadow-lg flashcard" id="flashcard">
+                <div class="card-body p-5 text-center">
+                    <div id="cardFront">
+                        <h5 class="text-muted mb-3">English</h5>
+                        <h2 id="englishText" class="mb-3"></h2>
+                        <h5 class="text-muted mb-3">Mandarin</h5>
+                        <h2 id="mandarinText" class="mb-4"></h2>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary btn-lg" onclick="flipCard()">
+                                <i class="fas fa-sync-alt"></i> Show Answer
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="cardBack" class="d-none">
+                        <h5 class="text-success mb-3">Shanghainese</h5>
+                        <h1 id="shanghainText" class="mb-3 text-danger"></h1>
+                        <p id="pinyinText" class="text-muted fs-5 mb-4"></p>
+
+                        <div class="d-grid gap-2 mb-4">
+                            <button class="btn btn-primary btn-lg" onclick="playAudio()">
+                                <i class="fas fa-volume-up"></i> Hear Pronunciation
+                            </button>
+                        </div>
+
+                        <p class="fw-bold mb-2">Did you know it?</p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success btn-lg" onclick="nextCard(true)">
+                                <i class="fas fa-check"></i> Yes, I knew it
+                            </button>
+                            <button class="btn btn-danger btn-lg" onclick="nextCard(false)">
+                                <i class="fas fa-times"></i> No, need practice
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back Button -->
+            <div class="text-center mt-3">
+                <button class="btn btn-outline-secondary" onclick="backToCategories()">
+                    <i class="fas fa-arrow-left"></i> Choose Different Category
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results -->
+<div id="resultsDisplay" class="d-none">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white text-center">
+                    <h4 class="mb-0"><i class="fas fa-trophy"></i> Session Complete!</h4>
+                </div>
+                <div class="card-body text-center p-5">
+                    <h1 id="scoreDisplay" class="display-1 mb-3"></h1>
+                    <p class="lead mb-4">Cards you knew</p>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary btn-lg" onclick="location.reload()">
+                            <i class="fas fa-redo"></i> Practice Again
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="window.location.href='/'">
+                            <i class="fas fa-home"></i> Back to Home
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let cards = [];
+let currentCardIndex = 0;
+let correctCount = 0;
+let isFlipped = false;
+
+async function startFlashcards(category) {
+    try {
+        const response = await fetch(`/flashcards/${category}`);
+        const data = await response.json();
+
+        if (data.success) {
+            cards = data.cards;
+            currentCardIndex = 0;
+            correctCount = 0;
+
+            document.getElementById('categorySelection').classList.add('d-none');
+            document.getElementById('flashcardDisplay').classList.remove('d-none');
+
+            showCard();
+        }
+    } catch (error) {
+        alert('Error loading flashcards: ' + error.message);
+    }
+}
+
+function showCard() {
+    if (currentCardIndex >= cards.length) {
+        showResults();
+        return;
+    }
+
+    const card = cards[currentCardIndex];
+    isFlipped = false;
+
+    document.getElementById('englishText').textContent = card.english;
+    document.getElementById('mandarinText').textContent = card.mandarin;
+    document.getElementById('shanghainText').textContent = card.shanghainese;
+    document.getElementById('pinyinText').textContent = card.pinyin;
+
+    document.getElementById('cardFront').classList.remove('d-none');
+    document.getElementById('cardBack').classList.add('d-none');
+
+    updateProgress();
+}
+
+function flipCard() {
+    document.getElementById('cardFront').classList.add('d-none');
+    document.getElementById('cardBack').classList.remove('d-none');
+    isFlipped = true;
+}
+
+function nextCard(knew) {
+    if (knew) {
+        correctCount++;
+    }
+
+    currentCardIndex++;
+    showCard();
+}
+
+function updateProgress() {
+    const progress = ((currentCardIndex) / cards.length) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+    document.getElementById('progressText').textContent = `Card ${currentCardIndex + 1} of ${cards.length}`;
+}
+
+async function playAudio() {
+    const card = cards[currentCardIndex];
+    console.log('Playing audio for:', card.shanghainese);
+
+    try {
+        const response = await fetch('/speak', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: card.shanghainese })
+        });
+
+        const data = await response.json();
+        console.log('Audio response:', data);
+
+        if (data.success) {
+            console.log('Playing audio from:', data.audio_url);
+            const audio = new Audio(data.audio_url);
+            audio.onerror = (e) => console.error('Audio playback error:', e);
+            audio.play().catch(e => console.error('Play error:', e));
+        } else {
+            console.error('Audio generation failed:', data.error);
+            alert('Failed to generate audio');
+        }
+    } catch (error) {
+        console.error('Audio error:', error);
+        alert('Error: ' + error.message);
+    }
+}
+
+function showResults() {
+    const percentage = Math.round((correctCount / cards.length) * 100);
+    document.getElementById('flashcardDisplay').classList.add('d-none');
+    document.getElementById('resultsDisplay').classList.remove('d-none');
+    document.getElementById('scoreDisplay').textContent = `${correctCount}/${cards.length}`;
+}
+
+function backToCategories() {
+    document.getElementById('flashcardDisplay').classList.add('d-none');
+    document.getElementById('categorySelection').classList.remove('d-none');
+}
+</script>
+
+<style>
+.flashcard {
+    min-height: 400px;
+    transition: transform 0.3s;
+}
+
+.flashcard:hover {
+    transform: scale(1.02);
+}
+</style>
+{% endblock %}

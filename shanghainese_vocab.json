@@ -1,0 +1,256 @@
+{
+  "greetings": [
+    {
+      "english": "Hello",
+      "mandarin": "你好",
+      "shanghainese": "侬好",
+      "pinyin": "nong ho"
+    },
+    {
+      "english": "Good morning",
+      "mandarin": "早上好",
+      "shanghainese": "侬早",
+      "pinyin": "nong zo"
+    },
+    {
+      "english": "Good evening",
+      "mandarin": "晚上好",
+      "shanghainese": "夜到好",
+      "pinyin": "ya dou ho"
+    },
+    {
+      "english": "Goodbye",
+      "mandarin": "再见",
+      "shanghainese": "再会",
+      "pinyin": "zä wēi"
+    },
+    {
+      "english": "Thank you",
+      "mandarin": "谢谢",
+      "shanghainese": "谢谢",
+      "pinyin": "xia xia"
+    },
+    {
+      "english": "Sorry",
+      "mandarin": "对不起",
+      "shanghainese": "对弗起",
+      "pinyin": "dei fe qi"
+    }
+  ],
+  "pronouns": [
+    {
+      "english": "I/me",
+      "mandarin": "我",
+      "shanghainese": "我",
+      "pinyin": "ngoh"
+    },
+    {
+      "english": "you",
+      "mandarin": "你",
+      "shanghainese": "侬",
+      "pinyin": "nong"
+    },
+    {
+      "english": "he/she",
+      "mandarin": "他/她",
+      "shanghainese": "伊",
+      "pinyin": "yi"
+    },
+    {
+      "english": "we/us",
+      "mandarin": "我们",
+      "shanghainese": "阿拉",
+      "pinyin": "a la"
+    },
+    {
+      "english": "you (plural)",
+      "mandarin": "你们",
+      "shanghainese": "那",
+      "pinyin": "na"
+    },
+    {
+      "english": "they/them",
+      "mandarin": "他们",
+      "shanghainese": "伊拉",
+      "pinyin": "yi la"
+    }
+  ],
+  "questions": [
+    {
+      "english": "What?",
+      "mandarin": "什么",
+      "shanghainese": "啥",
+      "pinyin": "sa"
+    },
+    {
+      "english": "Where?",
+      "mandarin": "哪里",
+      "shanghainese": "阿里",
+      "pinyin": "a li"
+    },
+    {
+      "english": "How?",
+      "mandarin": "怎么",
+      "shanghainese": "哪能",
+      "pinyin": "na nen"
+    },
+    {
+      "english": "How much (money)?",
+      "mandarin": "多少钱",
+      "shanghainese": "几钿",
+      "pinyin": "jih dih"
+    },
+    {
+      "english": "How are you?",
+      "mandarin": "你好吗",
+      "shanghainese": "侬好伐",
+      "pinyin": "nong ho va"
+    }
+  ],
+  "time": [
+    {
+      "english": "Today",
+      "mandarin": "今天",
+      "shanghainese": "今朝",
+      "pinyin": "jin zhao"
+    },
+    {
+      "english": "Morning",
+      "mandarin": "早晨",
+      "shanghainese": "早上",
+      "pinyin": "zou lang xiang"
+    },
+    {
+      "english": "Night",
+      "mandarin": "晚上",
+      "shanghainese": "夜里",
+      "pinyin": "ya li"
+    },
+    {
+      "english": "Now",
+      "mandarin": "现在",
+      "shanghainese": "现在",
+      "pinyin": "yi seh"
+    }
+  ],
+  "common_verbs": [
+    {
+      "english": "Go",
+      "mandarin": "去",
+      "shanghainese": "七",
+      "pinyin": "qi"
+    },
+    {
+      "english": "Play/hang out",
+      "mandarin": "玩",
+      "shanghainese": "巴相",
+      "pinyin": "ba xiang"
+    },
+    {
+      "english": "Know",
+      "mandarin": "知道",
+      "shanghainese": "晓得",
+      "pinyin": "xiao de"
+    },
+    {
+      "english": "Speak/say",
+      "mandarin": "说",
+      "shanghainese": "讲",
+      "pinyin": "gang"
+    },
+    {
+      "english": "Eat",
+      "mandarin": "吃",
+      "shanghainese": "吃",
+      "pinyin": "chi"
+    }
+  ],
+  "common_phrases": [
+    {
+      "english": "What are you doing?",
+      "mandarin": "你在干什么",
+      "shanghainese": "侬勒浪搭啥",
+      "pinyin": "nong le lang da sa"
+    },
+    {
+      "english": "I don't know",
+      "mandarin": "我不知道",
+      "shanghainese": "我勿晓得",
+      "pinyin": "ngu veq xiao de"
+    },
+    {
+      "english": "Have you eaten?",
+      "mandarin": "你吃饭了吗",
+      "shanghainese": "饭吃过伐",
+      "pinyin": "ve qe gu va"
+    },
+    {
+      "english": "Let's go together",
+      "mandarin": "我们一起去",
+      "shanghainese": "阿拉一道去",
+      "pinyin": "a la yi dao qi"
+    }
+  ],
+  "numbers": [
+    {
+      "english": "One",
+      "mandarin": "一",
+      "shanghainese": "一",
+      "pinyin": "yik"
+    },
+    {
+      "english": "Two",
+      "mandarin": "二",
+      "shanghainese": "两",
+      "pinyin": "ni"
+    },
+    {
+      "english": "Three",
+      "mandarin": "三",
+      "shanghainese": "三",
+      "pinyin": "seh"
+    },
+    {
+      "english": "Four",
+      "mandarin": "四",
+      "shanghainese": "四",
+      "pinyin": "si"
+    },
+    {
+      "english": "Five",
+      "mandarin": "五",
+      "shanghainese": "五",
+      "pinyin": "ng"
+    },
+    {
+      "english": "Six",
+      "mandarin": "六",
+      "shanghainese": "六",
+      "pinyin": "lok"
+    },
+    {
+      "english": "Seven",
+      "mandarin": "七",
+      "shanghainese": "七",
+      "pinyin": "qik"
+    },
+    {
+      "english": "Eight",
+      "mandarin": "八",
+      "shanghainese": "八",
+      "pinyin": "bak"
+    },
+    {
+      "english": "Nine",
+      "mandarin": "九",
+      "shanghainese": "九",
+      "pinyin": "jiu"
+    },
+    {
+      "english": "Ten",
+      "mandarin": "十",
+      "shanghainese": "十",
+      "pinyin": "suh"
+    }
+  ]
+}

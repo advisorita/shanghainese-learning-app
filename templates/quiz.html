@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz - Shanghainese Learning{% endblock %}
+
+{% block content %}
+<div class="text-center mb-4">
+    <h1 class="display-4">🎯 Quiz Mode</h1>
+    <p class="lead">Test your Shanghainese knowledge</p>
+</div>
+
+<!-- Quiz Setup -->
+<div id="quizSetup" class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Quiz Settings</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="numQuestions" class="form-label fw-bold">Number of Questions:</label>
+                    <input type="range" class="form-range" id="numQuestions" min="5" max="20" value="10" oninput="updateQuestionCount(this.value)">
+                    <div class="text-center">
+                        <span id="questionCount" class="badge bg-primary fs-5">10 questions</span>
+                    </div>
+                </div>
+
+                <div class="d-grid">
+                    <button class="btn btn-danger btn-lg" onclick="startQuiz()">
+                        <i class="fas fa-play"></i> Start Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quiz Display -->
+<div id="quizDisplay" class="d-none">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Progress -->
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <span id="questionProgress" class="fw-bold">Question 1 of 10</span>
+                    <span id="currentScore" class="fw-bold text-success">Score: 0</span>
+                </div>
+                <div class="progress" style="height: 20px;">
+                    <div id="quizProgressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="card shadow-lg mb-3">
+                <div class="card-body p-4">
+                    <h4 id="questionText" class="mb-4"></h4>
+
+                    <div id="optionsContainer" class="d-grid gap-2">
+                        <!-- Options will be inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback -->
+            <div id="feedback" class="alert d-none"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Quiz Results -->
+<div id="quizResults" class="d-none">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-lg">
+                <div class="card-header text-white text-center" id="resultsHeader">
+                    <h3 class="mb-0"><i class="fas fa-trophy"></i> Quiz Complete!</h3>
+                </div>
+                <div class="card-body text-center p-5">
+                    <h1 id="finalScore" class="display-1 mb-3"></h1>
+                    <p id="scoreMessage" class="lead mb-4"></p>
+
+                    <div id="performance" class="mb-4"></div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-danger btn-lg" onclick="location.reload()">
+                            <i class="fas fa-redo"></i> Take Another Quiz
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="window.location.href='/'">
+                            <i class="fas fa-home"></i> Back to Home
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let quizQuestions = [];
+let currentQuestion = 0;
+let score = 0;
+let totalQuestions = 0;
+
+function updateQuestionCount(value) {
+    document.getElementById('questionCount').textContent = value + ' questions';
+}
+
+async function startQuiz() {
+    const numQuestions = document.getElementById('numQuestions').value;
+
+    try {
+        const response = await fetch('/quiz/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ num_questions: numQuestions })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            quizQuestions = data.questions;
+            totalQuestions = quizQuestions.length;
+            currentQuestion = 0;
+            score = 0;
+
+            document.getElementById('quizSetup').classList.add('d-none');
+            document.getElementById('quizDisplay').classList.remove('d-none');
+
+            showQuestion();
+        }
+    } catch (error) {
+        alert('Error generating quiz: ' + error.message);
+    }
+}
+
+function showQuestion() {
+    if (currentQuestion >= quizQuestions.length) {
+        showResults();
+        return;
+    }
+
+    const question = quizQuestions[currentQuestion];
+
+    document.getElementById('questionText').textContent = question.question;
+    document.getElementById('questionProgress').textContent = `Question ${currentQuestion + 1} of ${totalQuestions}`;
+    document.getElementById('currentScore').textContent = `Score: ${score}`;
+
+    const progress = ((currentQuestion) / totalQuestions) * 100;
+    document.getElementById('quizProgressBar').style.width = progress + '%';
+
+    const optionsContainer = document.getElementById('optionsContainer');
+    optionsContainer.innerHTML = '';
+
+    question.options.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.className = 'btn btn-outline-primary btn-lg text-start';
+        button.textContent = option;
+        button.onclick = () => selectAnswer(option, question.correct_answer);
+        optionsContainer.appendChild(button);
+    });
+
+    document.getElementById('feedback').classList.add('d-none');
+}
+
+function selectAnswer(selected, correct) {
+    const isCorrect = selected === correct;
+
+    if (isCorrect) {
+        score++;
+        showFeedback(true, correct);
+    } else {
+        showFeedback(false, correct);
+    }
+
+    // Disable all buttons
+    const buttons = document.querySelectorAll('#optionsContainer button');
+    buttons.forEach(btn => {
+        btn.disabled = true;
+        if (btn.textContent === correct) {
+            btn.classList.remove('btn-outline-primary');
+            btn.classList.add('btn-success');
+        } else if (btn.textContent === selected && !isCorrect) {
+            btn.classList.remove('btn-outline-primary');
+            btn.classList.add('btn-danger');
+        }
+    });
+
+    // Move to next question after delay
+    setTimeout(() => {
+        currentQuestion++;
+        showQuestion();
+    }, 2000);
+}
+
+function showFeedback(isCorrect, correctAnswer) {
+    const feedback = document.getElementById('feedback');
+    feedback.classList.remove('d-none', 'alert-success', 'alert-danger');
+
+    if (isCorrect) {
+        feedback.classList.add('alert-success');
+        feedback.innerHTML = '<i class="fas fa-check-circle"></i> <strong>Correct!</strong>';
+    } else {
+        feedback.classList.add('alert-danger');
+        feedback.innerHTML = `<i class="fas fa-times-circle"></i> <strong>Wrong!</strong> Correct answer: ${correctAnswer}`;
+    }
+}
+
+function showResults() {
+    const percentage = Math.round((score / totalQuestions) * 100);
+
+    document.getElementById('quizDisplay').classList.add('d-none');
+    document.getElementById('quizResults').classList.remove('d-none');
+
+    document.getElementById('finalScore').textContent = `${score}/${totalQuestions}`;
+    document.getElementById('finalScore').className = 'display-1 mb-3 ' +
+        (percentage >= 80 ? 'text-success' :
+         percentage >= 60 ? 'text-warning' : 'text-danger');
+
+    const resultsHeader = document.getElementById('resultsHeader');
+    resultsHeader.className = 'card-header text-white text-center ' +
+        (percentage >= 80 ? 'bg-success' :
+         percentage >= 60 ? 'bg-warning' : 'bg-danger');
+
+    let message = '';
+    if (percentage >= 90) {
+        message = '🌟 Outstanding! You\'re a Shanghainese master!';
+    } else if (percentage >= 80) {
+        message = '🎉 Great job! Keep up the good work!';
+    } else if (percentage >= 60) {
+        message = '👍 Good effort! Practice makes perfect!';
+    } else {
+        message = '💪 Keep practicing! You\'ll get there!';
+    }
+
+    document.getElementById('scoreMessage').textContent = message;
+
+    const performance = document.getElementById('performance');
+    performance.innerHTML = `
+        <div class="progress" style="height: 30px;">
+            <div class="progress-bar ${percentage >= 80 ? 'bg-success' : percentage >= 60 ? 'bg-warning' : 'bg-danger'}"
+                 role="progressbar" style="width: ${percentage}%">
+                ${percentage}%
+            </div>
+        </div>
+    `;
+}
+</script>
+{% endblock %}

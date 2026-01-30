@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Vocabulary - Shanghainese Learning{% endblock %}
+
+{% block content %}
+<div class="text-center mb-4">
+    <h1 class="display-4">📚 Vocabulary Browser</h1>
+    <p class="lead">Explore Shanghainese words by category</p>
+</div>
+
+<div class="row">
+    {% for category, words in vocab.items() %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 shadow-sm category-card" data-category="{{ category }}">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-folder"></i> {{ category.replace('_', ' ').title() }}
+                </h5>
+                <small>{{ words|length }} words</small>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-outline-danger w-100" onclick="viewCategory('{{ category }}')">
+                    <i class="fas fa-eye"></i> View Words
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal for Word Details -->
+<div class="modal fade" id="wordModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="categoryTitle"></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="wordsList"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function viewCategory(category) {
+    try {
+        const response = await fetch(`/vocabulary/${category}`);
+        const data = await response.json();
+
+        if (data.success) {
+            displayWords(data.category, data.words);
+        }
+    } catch (error) {
+        alert('Error loading category: ' + error.message);
+    }
+}
+
+function displayWords(category, words) {
+    document.getElementById('categoryTitle').textContent = category.replace('_', ' ').toUpperCase();
+
+    const wordsList = document.getElementById('wordsList');
+    wordsList.innerHTML = '';
+
+    words.forEach((word, index) => {
+        const wordCard = `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="text-primary mb-2">${word.english}</h5>
+                            <p class="mb-1"><strong>Mandarin:</strong> ${word.mandarin}</p>
+                            <p class="mb-1"><strong>Shanghainese:</strong> <span class="fs-4">${word.shanghainese}</span></p>
+                            <p class="mb-0 text-muted"><small>Pronunciation: ${word.pinyin}</small></p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button class="btn btn-primary" onclick="speak('${word.shanghainese}')">
+                                <i class="fas fa-volume-up"></i> Listen
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        wordsList.innerHTML += wordCard;
+    });
+
+    const modal = new bootstrap.Modal(document.getElementById('wordModal'));
+    modal.show();
+}
+
+async function speak(text) {
+    console.log('Speaking:', text);
+    try {
+        const response = await fetch('/speak', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text })
+        });
+
+        const data = await response.json();
+        console.log('Audio response:', data);
+
+        if (data.success) {
+            console.log('Playing audio from:', data.audio_url);
+            const audio = new Audio(data.audio_url);
+            audio.onerror = (e) => console.error('Audio playback error:', e);
+            audio.play().catch(e => console.error('Play error:', e));
+        } else {
+            console.error('Audio generation failed:', data.error);
+            alert('Failed to generate audio');
+        }
+    } catch (error) {
+        console.error('Audio error:', error);
+        alert('Error generating audio: ' + error.message);
+    }
+}
+</script>
+
+<style>
+.category-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+}
+</style>
+{% endblock %}
